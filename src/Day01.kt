@@ -1,15 +1,28 @@
 fun main() {
+
+    fun parse(input: List<String>): List<Int> {
+        return input.map { it.toInt() }
+    }
+
+    fun increasedCount(input: List<Int>): Int {
+        return input.windowed(2)
+            .filter { it.size == 2 }
+            .map { (left, right) -> left < right }
+            .sumOf { it.toInt() }
+    }
+
     fun part1(input: List<String>): Int {
-        return input.size
+        val parsed = parse(input)
+        return increasedCount(parsed)
     }
 
     fun part2(input: List<String>): Int {
-        return input.size
+        val parsed = parse(input)
+            .windowed(3)
+            .filter { it.size == 3 }
+            .map { it.sum() }
+        return increasedCount(parsed)
     }
-
-    // test if implementation meets criteria from the description, like:
-    val testInput = readInput("Day01_test")
-    check(part1(testInput) == 1)
 
     val input = readInput("Day01")
     println(part1(input))
