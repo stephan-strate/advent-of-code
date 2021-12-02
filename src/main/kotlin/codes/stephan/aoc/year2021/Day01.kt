@@ -25,6 +25,21 @@ object Day01 : Day(2021, 1) {
             .map { (left, right) -> left < right }
             .sumOf { it.toInt() }
     }
+
+    override val test = Test(
+        data = "199\n" +
+                "200\n" +
+                "208\n" +
+                "210\n" +
+                "200\n" +
+                "207\n" +
+                "240\n" +
+                "269\n" +
+                "260\n" +
+                "263",
+        firstSolution = 7,
+        secondSolution = 5,
+    )
 }
 
 fun main() = Day01.execute()

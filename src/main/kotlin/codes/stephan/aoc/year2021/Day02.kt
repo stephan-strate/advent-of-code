@@ -36,6 +36,17 @@ object Day02 : Day(2021, 2) {
     enum class Operation {
         DOWN, UP, FORWARD
     }
+
+    override val test = Test(
+        data = "forward 5\n" +
+                "down 5\n" +
+                "forward 8\n" +
+                "up 3\n" +
+                "down 8\n" +
+                "forward 2",
+        firstSolution = 150,
+        secondSolution = 900,
+    )
 }
 
 fun main() = Day02.execute()
