@@ -6,7 +6,7 @@ import kotlin.system.measureTimeMillis
 
 abstract class Day(private val year: Int, private val day: Int) {
 
-    private val data: String = Fetcher.fetchInput(year, day)
+    protected open var data: String = Fetcher.fetchInput(year, day)
 
     // implementation for the day
     abstract fun first(data: String): Any
