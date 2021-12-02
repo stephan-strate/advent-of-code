@@ -1,47 +1,40 @@
 package codes.stephan.aoc.year2021
 
 import codes.stephan.aoc.common.Day
+import codes.stephan.aoc.year2021.Day02.Operation.*
 
 object Day02 : Day(2021, 2) {
 
     override fun first(data: String): Any {
-        var horizontal = 0
-        var depth = 0
-
-        data.lines()
-            .map { it.split(" ") }
-            .forEach { (operation, count) ->
-                val countInt = count.toInt()
+        return data.parse()
+            .fold(Pair(0, 0)) { (horizontal, depth), (operation, count) ->
                 when (operation) {
-                    "down" -> depth += countInt
-                    "up" -> depth -= countInt
-                    "forward" -> horizontal += countInt
+                    DOWN -> Pair(horizontal, depth + count)
+                    UP -> Pair(horizontal, depth - count)
+                    FORWARD -> Pair(horizontal + count, depth)
                 }
             }
-
-        return horizontal * depth
+            .let { (horizontal, depth) -> horizontal * depth }
     }
 
     override fun second(data: String): Any {
-        var horizontal = 0
-        var depth = 0
-        var aim = 0
-
-        data.lines()
-            .map { it.split(" ") }
-            .forEach { (operation, count) ->
-                val countInt = count.toInt()
+        return data.parse()
+            .fold(Triple(0, 0, 0)) { (horizontal, depth, aim), (operation, count) ->
                 when (operation) {
-                    "down" -> aim += countInt
-                    "up" -> aim -= countInt
-                    "forward" -> {
-                        horizontal += countInt
-                        depth += (aim * countInt)
-                    }
+                    DOWN -> Triple(horizontal, depth, aim + count)
+                    UP -> Triple(horizontal, depth, aim - count)
+                    FORWARD -> Triple(horizontal + count, depth + aim * count, aim)
                 }
             }
+            .let { (horizontal, depth, _) -> horizontal * depth }
+    }
 
-        return horizontal * depth
+    private fun String.parse() = lines()
+        .map { it.split(" ") }
+        .map { (operation, count) -> Operation.valueOf(operation.uppercase()) to count.toInt() }
+
+    enum class Operation {
+        DOWN, UP, FORWARD
     }
 }
 
