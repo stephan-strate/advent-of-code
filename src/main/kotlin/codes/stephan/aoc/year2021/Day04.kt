@@ -6,56 +6,40 @@ object Day04 : Day(2021, 4) {
 
     override fun first(data: String): Any {
         val input = data.parse()
-
-        input.numbers.forEach { number ->
-            input.boards.forEach { board ->
-                if (board.contains(number)) {
-                    val adj = board[number]!!
-                    board[number] = adj.copy(true)
-
-                    val row = adj.second.all { board[it]!!.first }
-                    val column = adj.third.all { board[it]!!.first }
-                    if (row || column) {
-                        val sumOfFalse = board.filter { (_, value) -> !value.first }
-                            .map { (key, _) -> key }
-                            .sum()
-                        return@first sumOfFalse * number
-                    }
-                }
-            }
-        }
-
-        throw IllegalStateException("No board won")
+        return input.scores()
+            .first()
     }
 
     override fun second(data: String): Any {
         val input = data.parse()
+        return input.scores()
+            .last()
+    }
 
-        val finishedBoards = mutableSetOf<Int>()
+    private fun Bingo.scores(): List<Int> {
+        val winners = mutableListOf<Int>()
+        val won = mutableSetOf<Board>()
 
-        input.numbers.forEach { number ->
-            input.boards.forEachIndexed { index, board ->
-                if (finishedBoards.contains(index)) return@forEachIndexed
-                if (board.contains(number)) {
-                    val adj = board[number]!!
-                    board[number] = adj.copy(true)
+        numbers.forEach { number ->
+            (boards - won).forEach { board ->
+                if (board.neighbours.contains(number)) {
+                    val adj = board.neighbours[number]!!
+                    board.neighbours[number] = adj.copy(marked = true)
 
-                    val row = adj.second.all { board[it]!!.first }
-                    val column = adj.third.all { board[it]!!.first }
+                    val row = adj.row.all { board.neighbours[it]!!.marked }
+                    val column = adj.column.all { board.neighbours[it]!!.marked }
                     if (row || column) {
-                        finishedBoards.add(index)
-                        if (finishedBoards.size == input.boards.size) {
-                            val sumOfFalse = board.filter { (_, value) -> !value.first }
-                                .map { (key, _) -> key }
-                                .sum()
-                            return@second sumOfFalse * number
-                        }
+                        val sumOfFalse = board.neighbours.filter { (_, value) -> !value.marked }
+                            .map { (key, _) -> key }
+                            .sum()
+                        winners.add(sumOfFalse * number)
+                        won.add(board)
                     }
                 }
             }
         }
 
-        throw IllegalStateException("No board won")
+        return winners
     }
 
     private fun String.parse(): Bingo {
@@ -64,36 +48,34 @@ object Day04 : Day(2021, 4) {
             .split(",")
             .map { it.toInt() }
 
-        val boards = mutableListOf<MutableMap<Int, Triple<Boolean, MutableSet<Int>, MutableSet<Int>>>>()
+        val boards = mutableListOf<Board>()
 
         while (lines.hasNext()) {
             lines.next() // skip empty line
-            val arr = Array(5) { IntArray(5) }
+
+            // read values as matrix
+            val matrix = Array(5) { IntArray(5) }
             repeat(5) { rowIndex ->
                 lines.next()
                     .split("  ", " ")
                     .filter { it != "" }
                     .forEachIndexed { columnIndex, value ->
-                        arr[rowIndex][columnIndex] = value.toInt()
+                        matrix[rowIndex][columnIndex] = value.toInt()
                     }
             }
 
-            val board = mutableMapOf<Int, Triple<Boolean, MutableSet<Int>, MutableSet<Int>>>()
-            arr.forEachIndexed { rowIndex, row ->
+            // create sets of neighbours
+            val board = mutableMapOf<Int, Neighbours>()
+            matrix.forEach { row ->
                 row.forEachIndexed { columnIndex, value ->
-                    if (!board.contains(value)) {
-                        board[value] = Triple(false, mutableSetOf(), mutableSetOf())
-                    }
-
-                    val triple = board[value]!!
-                    triple.second.addAll(row.toSet())
-                    triple.second.remove(value)
-
-                    triple.third.addAll(arr.map { it[columnIndex] })
-                    triple.third.remove(value)
+                    board[value] = Neighbours(
+                        marked = false,
+                        row = row.toSet() - value,
+                        column = matrix.map { it[columnIndex] }.toSet() - value,
+                    )
                 }
             }
-            boards.add(board)
+            boards.add(Board(board))
         }
 
         return Bingo(numbers, boards)
@@ -101,8 +83,17 @@ object Day04 : Day(2021, 4) {
 
     data class Bingo(
         val numbers: List<Int>,
-        // node -> (marked, row, column)
-        val boards: List<MutableMap<Int, Triple<Boolean, MutableSet<Int>, MutableSet<Int>>>>,
+        val boards: MutableList<Board>,
+    )
+
+    data class Board(
+        val neighbours: MutableMap<Int, Neighbours>,
+    )
+
+    data class Neighbours(
+        val marked: Boolean = false,
+        val row: Set<Int>,
+        val column: Set<Int>,
     )
 
     override val test = Test(
