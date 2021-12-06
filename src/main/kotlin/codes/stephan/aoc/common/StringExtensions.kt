@@ -6,3 +6,5 @@ import java.security.MessageDigest
 fun String.md5(): String = BigInteger(1, MessageDigest.getInstance("MD5").digest(toByteArray())).toString(16)
 
 fun String.intLines(): List<Int> = lines().map { it.toInt() }
+
+fun String.ints(delimiter: String = ",") = split(delimiter).map { it.toInt() }
