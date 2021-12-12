@@ -12,3 +12,5 @@ fun String.ints(delimiter: String = ",") = split(delimiter).map { it.toInt() }
 fun String.matrix(): Array<Array<Int>> = lines()
     .map { line -> line.toCharArray().map { it.digitToInt() }.toTypedArray() }
     .toTypedArray()
+
+fun String.isLowercase(): Boolean = lowercase() == this
