@@ -17,26 +17,31 @@ class Graph<T> {
         return this
     }
 
-    private fun <T> Graph<T>.dfs(source: T, target: T): Set<List<T>> {
-        val paths = mutableSetOf<List<T>>()
-        dfs(source, target, mutableSetOf(), mutableListOf(), paths)
-        return paths
-    }
+    fun dfs(source: T, target: T, strategy: VisitStrategy<T> = DefaultVisitStrategy()): List<List<T>> =
+        dfs(source, target, mutableListOf(), strategy)
 
-    private fun <T> Graph<T>.dfs(source: T, target: T, visited: MutableSet<T>, currentPath: MutableList<T>, finishedPaths: MutableSet<List<T>>) {
+    private fun dfs(source: T, target: T, currentPath: MutableList<T>, strategy: VisitStrategy<T>): List<List<T>> {
         currentPath.add(source)
-        visited.add(source)
+        strategy.visit(source)
 
         if (source == target) {
-            finishedPaths.add(currentPath)
-            return
+            return listOf(currentPath)
         }
 
-        adjacencyList.getOrDefault(source, emptySet())
-            .forEach { x ->
-                if (x !in visited) {
-                    dfs(x, target, visited.toMutableSet(), currentPath.toMutableList(), finishedPaths)
-                }
-            }
+        return adjacencyList.getOrDefault(source, emptySet())
+            .filter { strategy.hasNotVisit(it) }
+            .flatMap { dfs(it, target, currentPath.toMutableList(), strategy.copy()) }
+    }
+
+    interface VisitStrategy<T> {
+        fun visit(vertex: T): Boolean
+        fun hasNotVisit(vertex: T): Boolean
+        fun copy(): VisitStrategy<T>
+    }
+
+    class DefaultVisitStrategy<T>(private val visited: MutableSet<T> = mutableSetOf()) : VisitStrategy<T> {
+        override fun visit(vertex: T) = visited.add(vertex)
+        override fun hasNotVisit(vertex: T) = vertex !in visited
+        override fun copy() = DefaultVisitStrategy(visited.toMutableSet())
     }
 }
