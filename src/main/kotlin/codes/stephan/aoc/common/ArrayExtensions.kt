@@ -6,3 +6,7 @@ inline fun <reified T> Array<T>.rotate(n: Int): Array<T> {
     if (n < 0) distance += size
     return Array(size) { this[(it + distance) % size] }
 }
+
+inline fun <reified T> arr2d(n: Int, m: Int, defaultValue: T): Array<Array<T>> {
+    return Array(n) { Array(m) { defaultValue } }
+}

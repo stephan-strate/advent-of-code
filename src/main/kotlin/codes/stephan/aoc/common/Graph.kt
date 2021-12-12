@@ -2,7 +2,7 @@ package codes.stephan.aoc.common
 
 class Graph<T> {
 
-    val adjacencyList: MutableMap<T, MutableSet<T>> = mutableMapOf()
+    private val adjacencyList: MutableMap<T, MutableSet<T>> = mutableMapOf()
 
     fun addEdge(source: T, destination: T): Graph<T> {
         adjacencyList

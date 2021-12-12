@@ -9,8 +9,10 @@ fun String.intLines(): List<Int> = lines().map { it.toInt() }
 
 fun String.ints(delimiter: String = ",") = split(delimiter).map { it.toInt() }
 
-fun String.matrix(): Array<Array<Int>> = lines()
-    .map { line -> line.toCharArray().map { it.digitToInt() }.toTypedArray() }
-    .toTypedArray()
+fun String.matrix(): Matrix = Matrix(
+    lines()
+        .map { line -> line.toCharArray().map { it.digitToInt() }.toTypedArray() }
+        .toTypedArray()
+)
 
 fun String.isLowercase(): Boolean = lowercase() == this

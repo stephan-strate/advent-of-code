@@ -1,6 +1,7 @@
 package codes.stephan.aoc.year2021
 
 import codes.stephan.aoc.common.Day
+import codes.stephan.aoc.common.Matrix
 import codes.stephan.aoc.common.matrix
 
 object Day11 : Day(2021, 11) {
@@ -26,62 +27,39 @@ object Day11 : Day(2021, 11) {
         return steps
     }
 
-    private fun Array<Array<Int>>.simulate(n: Int): Int {
+    private fun Matrix.simulate(n: Int): Int {
         var flashes = 0
 
-        // simulate energy levels for 100 steps
         repeat(n) {
-            // increase value for all octopus
-            for (i in indices) {
-                for (j in this[i].indices) {
-                    this[i][j]++
-                }
+            map {
+                it.value + 1
             }
 
-            // flash octopus
             var flashed: Boolean
             do {
                 flashed = false
-                for (i in indices) {
-                    for (j in this[i].indices) {
-                        if (this[i][j] == 10) {
-                            this[i][j] = 0
-                            flashed = true
-                            flashes++
 
-                            increaseAdjacent(i, j)
-                        }
+                map { (i, j, value) ->
+                    if (value == 10) {
+                        mapNeighbors(i, j, {
+                            if (it.value in 1..9) {
+                                it.value + 1
+                            } else {
+                                it.value
+                            }
+                        }, true)
+
+                        flashed = true
+                        flashes++
+                        0
+                    } else {
+                        value
                     }
                 }
             } while (flashed)
         }
 
         return flashes
-    }
-
-    private fun Array<Array<Int>>.increaseAdjacent(i: Int, j: Int) {
-        // upper row
-        if (i > 0) {
-            increase(i - 1, j)
-            if (j > 0) increase(i - 1, j - 1)
-            if (j + 1 < this[i - 1].size) increase(i - 1, j + 1)
-        }
-
-        if (j > 0) increase(i, j - 1)
-        if (j + 1 < this[i].size) increase(i, j + 1)
-
-        // lower row
-        if (i + 1 < size) {
-            increase(i + 1, j)
-            if (j > 0) increase(i + 1, j - 1)
-            if (j + 1 < this[i + 1].size) increase(i + 1, j + 1)
-        }
-    }
-
-    private fun Array<Array<Int>>.increase(i: Int, j: Int) {
-        if (this[i][j] in 1..9) {
-            this[i][j]++
-        }
     }
 
     override val test = Test(
