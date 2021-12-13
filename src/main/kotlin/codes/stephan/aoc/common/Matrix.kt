@@ -12,6 +12,14 @@ class Matrix(private val values: Array<Array<Int>>) {
         values[i][j] = value
     }
 
+    fun forEach(action: (Point) -> Unit) {
+        for (i in values.indices) {
+            for (j in values[i].indices) {
+                action(Point(i, j, values[i][j]))
+            }
+        }
+    }
+
     fun forEachNeighbors(i: Int, j: Int, action: (Point) -> Unit, diagonal: Boolean = false) {
         neighbors(i, j, diagonal).forEach {
             action(it)
@@ -29,6 +37,15 @@ class Matrix(private val values: Array<Array<Int>>) {
     fun mapNeighbors(i: Int, j: Int, action: (Point) -> Int, diagonal: Boolean = false) {
         neighbors(i, j, diagonal).forEach {
             values[it.i][it.j] = action(it)
+        }
+    }
+
+    fun draw() {
+        forEach { (i, j, value) ->
+            print("$value ")
+            if (j + 1 == values[i].size) {
+                println()
+            }
         }
     }
 
